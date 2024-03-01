@@ -13,7 +13,7 @@ shortTitle: Quickstart
 product: '{% data reusables.gated-features.pages %}'
 ---
 
-## Introduction
+## Introductions
 
 {% data variables.product.prodname_pages %} are public webpages hosted and published through {% data variables.product.product_name %}. The quickest way to get up and running is by using the Jekyll Theme Chooser to load a pre-made theme. You can then modify your {% data variables.product.prodname_pages %}' content and style.
 
