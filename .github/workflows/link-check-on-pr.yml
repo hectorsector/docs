@@ -35,6 +35,7 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@3f54ebb830831fc121d3263c1857cfbdc310cdb9 # v42.0.4
         with:
+          json: true
           # No need to escape the file names because we make the output of
           # tj-actions/changed-files be set as an environment variable. Not
           # as a direct input to the line of bash that uses it.
