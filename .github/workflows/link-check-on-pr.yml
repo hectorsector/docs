@@ -22,8 +22,7 @@ concurrency:
 
 jobs:
   check-links:
-    runs-on: "ubuntu-latest"
-    # if: github.repository == 'github/docs-internal' || github.repository == 'github/docs'
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -32,17 +31,19 @@ jobs:
 
       - uses: ./.github/actions/node-npm-setup
 
-      - uses: ./.github/actions/get-docs-early-access
-        if: ${{ github.repository == 'github/docs-internal' }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@3f54ebb830831fc121d3263c1857cfbdc310cdb9 # v42.0.4
         with:
-          token: ${{ secrets.DOCS_BOT_PAT_READPUBLICKEY }}
-
-      - name: Get the diff
-        run: |
-          git fetch origin main:main
-          MERGE_BASE=$(git merge-base main ${{ github.sha }})
-          DIFF=$(git diff --name-only $MERGE_BASE ${{ github.sha }} | tr '\n' ' ')
-          echo "DIFF=$DIFF" >> $GITHUB_ENV
+          # No need to escape the file names because we make the output of
+          # tj-actions/changed-files be set as an environment variable. Not
+          # as a direct input to the line of bash that uses it.
+          # See https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+          safe_output: false
+          files: 'content/**'
+          # Necessary so we can know what the old name was when a
+          # content file was renamed.
+          output_renamed_files_as_deleted_and_added: true
 
       - name: Link check all pages (internal links only)
         env:
@@ -58,7 +59,7 @@ jobs:
           # been loaded.
           ENABLED_LANGUAGES: en
           FAIL_ON_FLAW: true
-          FILES_CHANGED: ${{ env.DIFF }}
+          FILES_CHANGED: ${{ steps.changed-files.outputs.modified_files }}
         run: node src/links/scripts/rendered-content-link-checker.js
 
       - name: Upload artifact(s)
