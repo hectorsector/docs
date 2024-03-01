@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
 
       - uses: ./.github/actions/node-npm-setup
 
@@ -34,6 +36,13 @@ jobs:
         if: ${{ github.repository == 'github/docs-internal' }}
         with:
           token: ${{ secrets.DOCS_BOT_PAT_READPUBLICKEY }}
+
+      - name: Get the diff
+        run: |
+          git fetch origin main:main
+          MERGE_BASE=$(git merge-base main ${{ github.sha }})
+          DIFF=$(git diff --name-only $MERGE_BASE ${{ github.sha }} | tr '\n' ' ')
+          echo "DIFF=$DIFF" >> $GITHUB_ENV
 
       - name: Link check all pages (internal links only)
         env:
@@ -49,6 +58,7 @@ jobs:
           # been loaded.
           ENABLED_LANGUAGES: en
           FAIL_ON_FLAW: true
+          FILES_CHANGED: $DIFF
         run: node src/links/scripts/rendered-content-link-checker.js
 
       - name: Upload artifact(s)
