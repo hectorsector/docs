@@ -23,7 +23,7 @@ topics:
   - Support
 ---
 
-## About support tickets
+## About support ticketssss
 
 {% ifversion fpt %}
 {% data reusables.support.free-and-paid-support %}
